@@ -1,0 +1,45 @@
+MODULE 9 — AI Feedback Agent (Groq / LLaMA 3.3 70B)
+=====================================================
+
+WHAT IT DOES:
+  After a patient submits a session, this agent generates personalized,
+  encouraging feedback — like a real speech therapist would write.
+
+FILES TO CREATE:
+  backend/agent/feedback_agent.py       — main agent logic
+  backend/app/api/ml.py                 — add POST /ml/feedback endpoint
+
+PACKAGE TO INSTALL:
+  pip install groq
+
+HOW IT WORKS:
+  1. Receive: exercise_type, expected_text, transcript, pronunciation_score
+  2. Build a prompt for LLaMA 3.3 70B via Groq API
+  3. Return: 2-3 sentences of feedback + one improvement tip
+
+PROMPT TEMPLATE:
+  You are a compassionate speech therapist helping a stroke patient recover.
+  The patient was asked to say: "{expected_text}"
+  They said: "{transcript}"
+  Their pronunciation score was: {score}/100
+  Exercise type: {exercise_type}
+
+  Write 2-3 short, encouraging sentences of feedback.
+  End with one specific tip to improve next time.
+  Keep it warm, positive, and simple.
+
+GROQ SETUP:
+  1. Go to https://console.groq.com → sign up (free)
+  2. Create an API key
+  3. Add to backend/.env:
+     GROQ_API_KEY=your-key-here
+  4. Model to use: llama-3.3-70b-versatile
+
+ENDPOINT:
+  POST /ml/feedback
+  Body: { exercise_type, expected_text, transcript, score }
+  Returns: { feedback: "Great effort! ..." }
+
+WHERE IT GETS CALLED:
+  After POST /sessions/submit — the feedback is saved into the session doc
+  and shown to the patient on the Exercise results screen (Module 13).

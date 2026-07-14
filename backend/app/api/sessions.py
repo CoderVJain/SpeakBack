@@ -7,6 +7,7 @@ from app.models.exercise import ExerciseBlock, EXERCISE_LIBRARY
 from app.api.deps import get_current_user
 from app.db.database import get_db
 from app.services.selection import select_content_for_session
+from agent.feedback_agent import generate_feedback
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
@@ -134,6 +135,12 @@ async def submit_session(data: SessionSubmit, current_user=Depends(get_current_u
         raise HTTPException(status_code=403, detail="Only patients can submit sessions")
     db = get_db()
     patient_id = str(current_user["_id"])
+    feedback = generate_feedback(
+        block_type=data.block_type.value,
+        expected_text=data.expected_text or "",
+        transcript=data.transcript or "",
+        metric_value=data.metric_value,
+    )
     doc = {
         "patient_id": patient_id,
         "block_type": data.block_type,
@@ -145,7 +152,7 @@ async def submit_session(data: SessionSubmit, current_user=Depends(get_current_u
         "metric_value": round(data.metric_value, 2),
         "baseline_delta": data.baseline_delta,
         "audio_url": data.audio_url,
-        "feedback": None,
+        "feedback": feedback,
         "timestamp": datetime.utcnow().isoformat(),
     }
     result = await db.sessions.insert_one(doc)

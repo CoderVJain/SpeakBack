@@ -64,7 +64,12 @@ export default function Session() {
 
     if (currentIndex + 1 >= exercises.length) {
       setPhase('submitting')
-      await Promise.allSettled(newResults.map(item => submitSession(token, item)))
+      const withFeedback = await Promise.all(newResults.map(item =>
+        submitSession(token, item)
+          .then(res => ({ ...item, feedback: res.feedback }))
+          .catch(() => item)
+      ))
+      setResults(withFeedback)
       setPhase('complete')
     } else {
       setCurrentIndex(currentIndex + 1)
@@ -240,23 +245,30 @@ function SessionSummary({ results, onDone }) {
         {results.map((r, i) => {
           const color = r.metric_value >= 75 ? '#2D6A4F' : r.metric_value >= 50 ? '#BC6C25' : '#B91C1C'
           return (
-            <div key={i} style={{ background: '#ffffff', border: '1px solid #E2E2DD', borderRadius: 8, padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <p style={{ fontWeight: 700, fontSize: 15, color: '#1A1A1A', margin: 0 }}>
-                  {BLOCK_LABELS[r.block_type]}
-                </p>
-                <p style={{ fontSize: 13, color: '#6B7280', margin: '2px 0 0' }}>
-                  {r.exercise_name}
-                </p>
+            <div key={i} style={{ background: '#ffffff', border: '1px solid #E2E2DD', borderRadius: 8, padding: '14px 18px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <p style={{ fontWeight: 700, fontSize: 15, color: '#1A1A1A', margin: 0 }}>
+                    {BLOCK_LABELS[r.block_type]}
+                  </p>
+                  <p style={{ fontSize: 13, color: '#6B7280', margin: '2px 0 0' }}>
+                    {r.exercise_name}
+                  </p>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <p style={{ fontSize: 22, fontWeight: 900, color, margin: 0 }}>
+                    {Math.round(r.metric_value)}
+                  </p>
+                  <p style={{ fontSize: 11, color: '#6B7280', margin: 0 }}>
+                    {r.metric_name?.split('(')[0].trim()}
+                  </p>
+                </div>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: 22, fontWeight: 900, color, margin: 0 }}>
-                  {Math.round(r.metric_value)}
+              {r.feedback && (
+                <p style={{ fontSize: 14, color: '#374151', lineHeight: 1.6, margin: '12px 0 0', paddingTop: 12, borderTop: '1px solid #F0F0EC' }}>
+                  {r.feedback}
                 </p>
-                <p style={{ fontSize: 11, color: '#6B7280', margin: 0 }}>
-                  {r.metric_name?.split('(')[0].trim()}
-                </p>
-              </div>
+              )}
             </div>
           )
         })}

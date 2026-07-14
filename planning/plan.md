@@ -24,6 +24,19 @@ approve anything important.
 - **A sudden drop in speech can be a warning sign** (like a second stroke). The app can
   catch this early and alert the therapist fast.
 
+**Which feature solves which problem** (all from the "Features to build" list below):
+
+| Problem | Feature(s) that solve it |
+|---------|--------------------------|
+| Not enough speech therapists | #2 Adaptive Curriculum (one therapist covers many) + #3 Monitor and Safety (points their time at who needs it) |
+| Patients stop practicing at home | #1 Feedback Agent (instant encouragement) + #5 Adherence Agent (reminders) |
+| Therapists drown in paperwork | #4 Documentation Agent (writes the first draft of notes and reports) |
+| Insurance pays only with a practice record | #4 Documentation Agent (practice/adherence log) |
+| A sudden speech drop is a warning sign | #3 Monitor and Safety Agent (nightly check + urgent alert) |
+
+Every problem maps to at least one feature. #1 Feedback Agent is built; #2–#6 are planned
+in the build order at the end of this document.
+
 ---
 
 ## How the app works now vs. what we want
